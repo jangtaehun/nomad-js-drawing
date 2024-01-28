@@ -17,6 +17,7 @@ canvas.height = 800;
 
 const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 800;
+ctx.lineCap = "round";
 
 const lineWidth = document.getElementById("line-width");
 ctx.lineWidth = lineWidth.value; //초기 값을 준다.
@@ -33,6 +34,12 @@ const modeBtn = document.getElementById("mode-btn");
 const clean = document.getElementById("clean-btn");
 
 const eraser = document.getElementById("eraser-btn");
+
+const fileInput = document.getElementById("file");
+
+const textInput = document.getElementById("text");
+
+const saveBtn = document.getElementById("save");
 
 let isPainting = false;
 let isFilling = false;
@@ -110,4 +117,40 @@ eraser.addEventListener("click", onEraserClick);
 function onEraserClick() {
     ctx.strokeStyle = "white";
     isFilling = false;
+}
+
+fileInput.addEventListener("change", onFileClick);
+function onFileClick(event) {
+    const file = event.target.files[0];
+    console.log(file);
+    const url = URL.createObjectURL(file);
+    console.log(url);
+    const image = new Image();
+    image.src = url;
+    image.onload = function () {
+        ctx.drawImage(image, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        fileInput.value = null; // file input 비우기
+    };
+}
+
+canvas.addEventListener("dblclick", onDoubleClick);
+function onDoubleClick(event) {
+    const text = textInput.value;
+    if (text != "") {
+        ctx.save(); //현재 상태... 등 모든 것을 저장한다.
+        ctx.lineWidth = 1;
+        ctx.font = "24px -apple-system";
+        ctx.fillText(text, event.offsetX, event.offsetY);
+        // ctx.strokeText(text, event.offsetX, event.offsetY);
+        ctx.restore();
+    }
+}
+
+saveBtn.addEventListener("click", onSaveClick);
+function onSaveClick(event) {
+    const url = canvas.toDataURL();
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "myDrawing.png";
+    a.click();
 }
